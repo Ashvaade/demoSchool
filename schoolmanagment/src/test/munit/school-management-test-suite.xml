@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="school-management-test-suite.xml" />
+	<munit:test name="school-management-test-suite-delete:\students\(id):application\json:school-management-configTest" doc:id="e33b212d-8f13-498d-83ab-25d133cb9a13" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="7148c8ad-3e9e-4aa0-9214-3dd27e9b5967" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="school-management-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="514d2e5b-6e37-4344-8eb7-760a6dbb6b1b" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="school-management-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="8bfd976a-faf4-4ee9-96ec-5bb1ee75bba7" processor="db:delete">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Delete" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="Database_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="e05e6975-7e87-41db-b5df-7a02f26279f9" >
+				<munit:attributes value='#[{"uriParmas":{&#10;"id" : "5"}}]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow Reference" doc:id="83efcdc8-56e9-4e6d-881f-5de7602b0f27" name="school-management-main"/>
+			<flow-ref doc:name="Flow-ref to delete:\students\(id):application\json:school-management-config" doc:id="bea0cd76-cd93-46e6-b53d-128d5d018e8a" name="delete:\students\(id):application\json:school-management-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="301c944c-d89f-4b0e-9a98-e3e707730884" is="#[MunitTools::notNullValue()]" expression="#[payload != null]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="school-management-test-suite-get:\students:school-management-configTest" doc:id="ee497d01-22e9-437b-ae6f-b254326af4db" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when-database" doc:id="53e65506-93e0-4e82-a381-9b2a9d7b8d51" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Select" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="Database_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('allStudents.json')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\students:school-management-config" doc:id="cd92e71d-7b3c-4d31-9a9c-fdf76086a38b" name="get:\students:school-management-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="46d14be5-14fd-4dc6-ad92-806845844853" is="#[MunitTools::notNullValue()]" expression="#[payload != null]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="school-management-test-suite-post:\students:application\json:school-management-configTest" doc:id="e65817a4-2893-466d-912e-4fb96922c356" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="e77e9fe8-6aa8-420f-ae46-5d0ed122c487" processor="db:insert">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Insert" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="Database_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('allStudents.json')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="f0ffd0f4-127e-40c6-b043-04423f53edad" >
+				<munit:payload value="#[MunitTools::getResourceAsString('addStudent.json')]" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\students:application\json:school-management-config" doc:id="01fb382e-f8aa-4b38-b503-13dbdceb0ce8" name="post:\students:application\json:school-management-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="a13532ec-b8c4-4157-8421-3324dd63412e" is="#[MunitTools::notNullValue()]" expression="#[payload != null]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="school-management-test-suite-get:\students\(id):school-management-configTest" doc:id="a206d8bf-d025-4589-ac2d-20ddfa7d4441" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="33afa5ad-96e3-453c-a278-f862605beca2" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Select" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="Database_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="377fa88f-3ec9-4dc2-b408-3302325271b1" >
+				<munit:attributes value='#[{"uriParmas":{&#10;"id" : "5"}}]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to get:\students\(id):school-management-config" doc:id="5c8ae8f5-52cb-4b6e-b337-4193aebd98b9" name="get:\students\(id):school-management-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="8d98245e-0c27-4752-9a9f-730dd6faea77" is="#[MunitTools::notNullValue()]" expression="#[payload != null]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="school-management-test-suite-get:\healthcheck:application\json:school-management-configTest" doc:id="e60fa38b-c6d0-4b45-a4a1-5ae04c2a98d1" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\healthcheck:application\json:school-management-config" doc:id="9fdab0eb-ad3c-43ff-aceb-7b370baf46cd" name="get:\healthcheck:application\json:school-management-config"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="school-management-test-suite-get:\teachers:school-management-configTest" doc:id="92e59921-8bf9-49dd-925f-5afde951bb60" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="7030fb9a-9c6d-48b4-9217-b77c22b4d468" processor="db:select">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="Select" attributeName="doc:name" />
+					<munit-tools:with-attribute whereValue="Database_Config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('allTeachers.json')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\teachers:school-management-config" doc:id="471d377d-17ee-439b-ab96-618681e87927" name="get:\teachers:school-management-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="8b97f234-9d2d-4c86-9a52-48b0d1ce1d19" is="#[MunitTools::notNullValue()]" expression="#[payload != null]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

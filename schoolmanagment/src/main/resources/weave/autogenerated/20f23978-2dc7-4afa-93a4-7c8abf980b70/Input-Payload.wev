@@ -1,0 +1,13 @@
+%dw 2.0
+
+type auto_20f23978_2dc7_4afa_93a4_7c8abf980b70_Input_Payload = {
+  s_gender: String, 
+  s_id?: Number, 
+  s_grade: Number, 
+  s_lname: String, 
+  s_dob: String, 
+  s_fname: String, 
+  s_address: String, 
+  _?: Any
+}
+

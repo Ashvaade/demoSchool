@@ -1,0 +1,16 @@
+[{
+    "t_id": 1,
+    "t_fname": "komal",
+    "t_lname": "sampatte",
+   
+    "t_dob": "2009-09-06",
+    "t_phonenumber": 890976540,
+    "t_address": "keshav nagar, mumbai"
+},
+{"t_id": 1,
+    "t_fname": "komal",
+    "t_lname": "sampatte",
+    
+    "t_dob": "2009-09-06",
+    "t_phonenumber": 890976540,
+    "t_address": "keshav nagar, mumbai"}]

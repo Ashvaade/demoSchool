@@ -1,0 +1,20 @@
+[
+  {
+    "s_id": 2,
+    "s_fname": "ashvini",
+    "s_lname": "chavan",
+    "s_grade": 9,
+    "s_dob": "2012-06-12",
+    "s_gender": "female",
+    "s_address": "shivaji chowk, pune"
+  },
+  {
+    "s_id": 3,
+    "s_fname": "atish",
+    "s_lname": "dhage",
+    "s_grade": 10,
+    "s_dob": "2008-11-01",
+    "s_gender": "male",
+    "s_address": "chandani chowk, pune"
+  }
+]

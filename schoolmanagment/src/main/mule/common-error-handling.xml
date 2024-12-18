@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<configuration doc:name="Configuration" doc:id="1ceee9e1-c571-4d19-89f0-6466a7d1554c" defaultErrorHandler-ref="common-error-handlingError_Handler" />
+	<error-handler name="common-error-handlingError_Handler" doc:id="68d3608d-b408-4909-948d-f2219b2a1335" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="21d58af8-9172-4185-9026-bf45be37d1a7" type="DB:BAD_SQL_SYNTAX,DB:QUERY_EXECUTION">
+			<set-variable value="400" doc:name="Set Variable" doc:id="04ca1b23-a544-40a7-a0c0-d5d83c5bf87e" variableName="httpStatus"/>
+			<ee:transform doc:name="Transform Message" doc:id="57128daf-9887-43cd-b47e-29b92aa18bcf" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status": vars.httpStatus default 500,
+	"message": error.errorMessage,
+	"description": error.description,
+	"type": error.errorType
+
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="04929cc2-01ce-433d-90dd-68db0fdd781c" message="#[payload]"/>
+		</on-error-continue>
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="21d58af8-9172-4185-9026-bf45be37d1a7" type="DB:CONNECTIVITY">
+			<set-variable value="500" doc:name="Set Variable" doc:id="04ca1b23-a544-40a7-a0c0-d5d83c5bf87e" variableName="httpStatus"/>
+			<ee:transform doc:name="Transform Message" doc:id="57128daf-9887-43cd-b47e-29b92aa18bcf" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status": vars.httpStatus,
+	"message": error.errorMessage,
+	"description": error.description,
+	"type": error.errorType
+
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="04929cc2-01ce-433d-90dd-68db0fdd781c" message="#[payload]"/>
+		</on-error-continue>
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="37d479c1-0380-49d1-9693-54639eda8190" type="STREAM_MAXIMUM_SIZE_EXCEEDED">
+			<set-variable value="400" doc:name="Set Variable" doc:id="4685ee54-ef47-4d2b-b0d9-237f0be5c763" variableName="httpStatus"/>
+			<ee:transform doc:name="Transform Message" doc:id="5b82b182-c6db-4f50-b45a-c66a1828cb90" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status": vars.httpStatus default 500,
+	"message": error.errorMessage,
+	"description": error.description,
+	"type": error.errorType
+
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="536adcf0-0e9c-4770-bdfb-bc5fefe0d217" message="#[payload]"/>
+		</on-error-continue>
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4cc99607-85fc-42a7-ba14-cb8ff1362b68" type="FILE:ILLEGAL_PATH">
+			<set-variable value="400" doc:name="Set Variable" doc:id="4fa377a1-4796-4408-887e-c35828fb717f" variableName="httpStatus"/>
+			<ee:transform doc:name="Transform Message" doc:id="eadb4a46-9339-4285-8402-a81b9aa5fa2d" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status": vars.httpStatus default 500,
+	"message": error.errorMessage,
+	"description": error.description,
+	"type": error.errorType
+
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="636457e5-e64d-4c82-baa4-d7041f85038c" message="#[payload]"/>
+		</on-error-continue>
+		<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="0896c957-57b1-4fa5-a910-c22d1a59dacf" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="9e2b7bbc-5097-41f7-9bd4-13d3a0ff91be" >
+				<ee:message >
+					<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"message": error.errorMessage
+	
+}]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+			<logger level="INFO" doc:name="Logger" doc:id="a078696c-0be6-418f-be97-7fb03c118a5b" message="#[payload]"/>
+		</on-error-propagate>
+	</error-handler>
+</mule>

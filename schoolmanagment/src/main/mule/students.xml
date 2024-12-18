@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="e0a2c4cc-3aa5-4e23-9607-7c9551d1e1a9" >
+		<db:my-sql-connection host="${db.host}" port="${db.port}" user="${db.user}" password="${db.password}" database="${db.database}" />
+	</db:config>
+	<flow name="fetchStudents" doc:id="3c878442-02d9-4689-9a18-b85c846abdc4" >
+		<db:select doc:name="Select" doc:id="486a1829-a7dd-42f3-93d1-570f1e760bfd" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from students;]]></db:sql>
+		</db:select>
+		<logger level="INFO" doc:name="Logger" doc:id="2c7d1aeb-1f11-4b2b-8daa-5c2096883b3b" message="response from db #[payload]" />
+		<ee:transform doc:name="Transform Message" doc:id="0707ff26-6563-4172-9598-3ab103e30af3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<file:write doc:name="Write" doc:id="7fc5db1d-5f4c-4e42-9c3d-97d9188b780a" path="C:\Users\ashvini.aade\Desktop\file\students.txt" />
+		<ee:transform doc:name="Transform Message" doc:id="43703fd1-fdd9-4304-9213-49b7741393b0" >
+			<ee:message >
+				<ee:set-payload resource="dwl/studentsall.dwl" />
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="04c1c0cb-edf4-4b4d-b2a7-188c244ee21f" type="DB:BAD_SQL_SYNTAX, DB:CONNECTIVITY, DB:QUERY_EXECUTION, DB:RETRY_EXHAUSTED, FILE:ACCESS_DENIED, FILE:CONNECTIVITY, FILE:FILE_ALREADY_EXISTS, FILE:ILLEGAL_CONTENT, FILE:ILLEGAL_PATH, FILE:RETRY_EXHAUSTED, EXPRESSION">
+				<logger level="INFO" doc:name="Logger" doc:id="0ff3751b-6c69-42e9-8231-83e1ce2d1a93" message="error is occured"/>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<flow name="studentsbyid" doc:id="92e2bb0f-987b-4b7e-b150-4f8d5d308e61" >
+		<ee:cache doc:name="Cache" doc:id="f94e4e18-e4e9-4a7c-8322-309b629ad03f" >
+			<db:select doc:name="Select" doc:id="1024aedf-e14b-4364-8052-ab63447c297d" config-ref="Database_Config">
+			<db:sql><![CDATA[select * from students where s_id =:id;]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"id" : vars.id
+}]]]></db:input-parameters>
+		</db:select>
+		</ee:cache>
+		<!-- [STUDIO:"Read"]<file:read doc:name="Read" doc:id="aa11f783-1ec7-4cf3-9a56-6243b588d155" path="C:\Users\ashvini.aade\Desktop\file\students.txt"/> [STUDIO] -->
+		<ee:transform doc:name="Transform Message" doc:id="8821ab68-4e27-4701-9935-c66f192e3108" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="51c8e547-12b1-4190-8e98-ac321b89e068" message="#[payload]"/>
+		<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message" doc:id="16f564c0-6d1d-49f5-af6a-34ff9ccb7c7d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+
+var c= payload 
+var b= splitBy(c,"\n}\n")
+var a =b map(b)-> b as Object
+
+&#45;&#45;-
+(a map()->
+{
+	   "studentId": a.s_id,
+        "studentFullName": upper(a.s_fname default "" ++ a.s_lname default""),
+        "studentsGrade": a.s_grade,
+        "s_dob": a.s_dob
+        
+}) if (a.s_id == 3)&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform> [STUDIO] -->
+	</flow>
+	<flow name="newstudentFlow" doc:id="20f23978-2dc7-4afa-93a4-7c8abf980b70" >
+		<logger level="INFO" doc:name="Logger" doc:id="783c1d19-67c2-40bd-baee-609100da93a7" message="subflow staerted #[flow.name]"/>
+		<ee:transform doc:name="Transform Message" doc:id="ea60fa40-4b90-4741-80a6-e1748305a0e4" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<choice doc:name="Choice" doc:id="8e373c41-4894-4667-ba4e-b02777167ae2" >
+			<when expression="#[payload.s_id ==  null]">
+				<logger level="INFO" doc:name="Logger" doc:id="53542013-30d3-4c8c-a63f-c3220a9c14f9" message="s_id cannot be null"/>
+			</when>
+			<otherwise >
+				<db:insert doc:name="Insert" doc:id="c4784570-8430-460b-83ac-3fe30c6f68a3" config-ref="Database_Config">
+			<db:sql><![CDATA[insert into students (s_id,s_fname,s_lname,s_grade,s_dob,s_gender,s_address)
+ values (:s_id,:s_fname,:s_lname,:s_grade,:s_dob,:s_gender,:s_address);]]></db:sql>
+			<db:input-parameters><![CDATA[#[{
+	"s_id":payload.s_id,
+"s_fname": payload.s_fname,
+"s_lname": payload.s_lname,
+"s_grade": payload.s_grade,
+"s_dob": payload.s_dob,
+"s_gender": payload.s_gender,
+"s_address": payload.s_address
+}]]]></db:input-parameters>
+		</db:insert>
+			</otherwise>
+		</choice>
+		<logger level="INFO" doc:name="Logger" doc:id="e177e8d5-d142-463e-81b3-3a8436163ef7" message="#[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="0973151a-1743-4b48-9870-fa4a52d4b270" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

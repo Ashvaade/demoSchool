@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+    <http:listener-config name="school-management-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}" />
+    </http:listener-config>
+    <apikit:config name="school-management-config" api="resource::d859673a-71ad-4123-a7d1-068a47606812:school-management:1.0.1:raml:zip:school-management.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <configuration-properties doc:name="Configuration properties" doc:id="e4e1ad4d-ef82-4554-9fc8-4697bf43b708" file="config\dev.yaml" />
+	<flow name="school-management-main" doc:id="653670b4-fb6c-409a-9dbd-a68543953630">
+        <http:listener config-ref="school-management-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="school-management-config" />
+        <error-handler>
+            <!-- <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+-&#45;&#45;
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+-&#45;&#45;
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate> -->
+           <!--  <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+-&#45;&#45;
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+-&#45;&#45;
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+-&#45;&#45;
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate> -->
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <!-- <flow name="school-management-console">
+        <http:listener config-ref="school-management-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="school-management-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform doc:name="Transform Message">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+-&#45;&#45;
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow> -->
+    <flow name="get:\students:school-management-config">
+        <logger level="INFO" doc:name="Logger" doc:id="6427abbc-3cc9-48bb-b74b-773464f0f282" message="flow started...#[flow.name]" />
+		<!-- [STUDIO:"Transform Message"]<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+[
+  {
+    s_id: 1,
+    s_fname: "Ankita",
+    s_lname: "Jadgav",
+    s_grade: 9,
+    s_dob: "2010-09-06",
+    s_gender: "female",
+    s_address: "nguiebg hgfyh gbherbv"
+  }, 
+  {
+    s_id: 2,
+    s_fname: "komal",
+    s_lname: "sampatte",
+    s_grade: 7,
+    s_dob: "2009-09-06",
+    s_gender: "female",
+    s_address: "keshav nagar, mumbai"
+  }
+&#93; as Array {encoding: "UTF-8", mediaType: "application/json"}&#93;&#93;></ee:set-payload>
+            </ee:message>
+        </ee:transform> [STUDIO] -->
+		<flow-ref doc:name="Flow Reference" doc:id="8474842d-d894-4281-962a-2fafb6561f35" name="fetchStudents" />
+		<logger level="INFO" doc:name="Logger" doc:id="484ad378-0e2c-4328-b495-5e2fe56d27c9" message="end of the flow #[flow.name]" />
+    </flow>
+	<flow name="post:\students:application\json:school-management-config">
+		<logger level="INFO" doc:name="Logger" doc:id="c78fd98a-94b1-418a-9d58-b7fbb90c0eb8" message="#[flow.name]" />
+		<flow-ref doc:name="newstudentFlow" doc:id="fef89b11-caf1-472e-8d02-49965070cc39" name="newstudentFlow" />
+		<logger level="INFO" doc:name="Logger" doc:id="9c7516b6-c8aa-4290-b842-bfbf362238e2" message="end of the flow...#[flow.name]"/>
+    </flow>
+	<flow name="delete:\students\(id):application\json:school-management-config">
+        <logger level="INFO" message="delete:\students\(id):application\json:school-management-config" />
+		<ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+		<db:delete doc:name="Delete" doc:id="5ee74023-8084-4853-ac43-3593ee616f9a" config-ref="Database_Config">
+			<db:sql ><![CDATA[delete from students where s_id = :id;]]></db:sql>
+			<db:input-parameters ><![CDATA[#[{
+	"id": vars.id
+}]]]></db:input-parameters>
+		</db:delete>
+		<ee:transform doc:name="Transform Message" doc:id="5568400a-2dac-4492-99a8-97f1877a72be" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"message": "record deleted successfully"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow>
+    <!-- <flow name="patch:\students:application\json:school-management-config">
+        <ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+-&#45;&#45;
+{
+  message: "new student added in list"
+} as Object {encoding: "UTF-8", mediaType: "application/json"}]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow> -->
+    <flow name="get:\students\(id):school-management-config">
+        <logger level="INFO" doc:name="Logger" doc:id="164040a8-30c6-4016-b9a8-ccd74d7c2b41" message="flow started #[flow.name]"/>
+		<ee:transform doc:name="Transform Message">
+            <ee:variables>
+                <ee:set-variable variableName="id">attributes.uriParams.'id'</ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <flow-ref doc:name="Flow Reference" doc:id="b5c1b9dd-e3c3-4bd0-ad7e-79c95b02c2a5" name="studentsbyid"/>
+    </flow>
+	<flow name="get:\teachers:school-management-config">
+        <logger level="INFO" doc:name="Logger" doc:id="6ec0d3a3-47f0-44e9-8d4b-69a463b7e095" message="flow is started #[flow.name]" />
+		<flow-ref doc:name="Flow Reference" doc:id="0de4c630-15bb-417c-a101-7a7dff4b5a20" name="teachersFlow" />
+    </flow>
+	<!-- [STUDIO:"post:\teachers:application\json:school-management-config"]<flow name="post:\teachers:application\json:school-management-config">
+        <logger level="INFO" doc:name="Logger" doc:id="ba0db353-b181-49cb-a07e-9df0aa18dda3" message="#[flow.name&#93;"/>
+		<ee:transform doc:name="Transform Message">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+&#45;&#45;-
+{
+	"message": "successfully created new teacher record" 
+}
+&#93;&#93;></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="664e9974-fba7-4684-b3ce-64a56d4ee532" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/flatfile
+&#45;&#45;-
+payload&#93;&#93;></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow> [STUDIO] -->
+	<flow name="get:\healthcheck:application\json:school-management-config" doc:id="80591ceb-d8df-4e55-8a10-9d5a8e7f8778" >
+		<ee:transform doc:name="Transform Message" doc:id="6faf4c96-dd61-4946-a18e-f84f9189b4e9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"currentTtime": now() as String {format: "yyyy-MM-dd"},
+	"appName": p('application.name')
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

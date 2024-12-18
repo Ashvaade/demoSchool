@@ -1,0 +1,5 @@
+%dw 2.0
+
+type auto_3c878442_02d9_4689_9a18_b85c846abdc4_Input_Payload = Array<{|  s_id: Number,   s_fname: String,   s_lname: String,   s_grade: Number,   s_dob: String,   s_gender: String,   s_address: String|}> {"mediaType": "application/json",
+"encoding": "UTF-8"}
+

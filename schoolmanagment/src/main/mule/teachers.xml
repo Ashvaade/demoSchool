@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:db="http://www.mulesoft.org/schema/mule/db" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd">
+	<flow name="teachersFlow" doc:id="a3b83e0c-3762-427b-873f-0d8decefa654" >
+		<db:select doc:name="Select" doc:id="4416ce0a-2eb9-46b4-b678-89b5fc5e0b6b" config-ref="Database_Config">
+			<db:sql ><![CDATA[select * from teachers;]]></db:sql>
+		</db:select>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="a7514ea1-ae5f-4be5-8c51-011017c649d1" >
+			<route >
+				<try doc:name="Try" doc:id="468c5e02-1a0a-4819-92cf-0a4b037714b4" >
+					<foreach doc:name="For Each" doc:id="662d8a11-3578-49a9-bd9c-f1410487106a" collection="#[payload]">
+					<ee:transform doc:name="Transform Message" doc:id="40072dab-4671-48f2-b669-0b22d6d26d39">
+					<ee:message>
+						<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+					<logger level="INFO" doc:name="Logger" doc:id="b5a66299-e696-4e17-9021-3a6943b87229" message="#[payload]" />
+				</foreach>
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="c378cf5b-8596-4e29-806f-32973c24b9ea" >
+							<logger level="INFO" doc:name="Logger" doc:id="b9c0924a-cf44-4d90-9db1-ec5f851f4132" message="an error is occured"/>
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</route>
+			<route >
+				<try doc:name="Try" doc:id="e7a0d732-5ab1-4cbb-9ae4-509bc06986a4" >
+					<logger level="INFO" doc:name="Logger" doc:id="a3f1cbfd-ee51-4010-872c-07058f569009" message="Processing student: #[paylaod]" />
+					<error-handler >
+						<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="16b2d658-ebc8-4fc5-8b1e-874c30fb7d06" type="ANY">
+							<logger level="INFO" doc:name="Logger" doc:id="64bb9b93-2561-4fd8-bc60-834748b24acd" message="an error is occured"/>
+						</on-error-continue>
+					</error-handler>
+				</try>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="2e127b73-d9c3-4b87-9806-03a72bd25144" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,4 @@
+%dw 2.0
+
+type auto_653670b4_fb6c_409a_9dbd_a68543953630_Input_Attributes = {| uriParmas: {| id: String |} |}
+
